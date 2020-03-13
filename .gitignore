@@ -127,3 +127,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# EchoCount Ignores
+/archive
+/data
+/extras
+/images
+/logs
+/models
+/scratch
+/test
