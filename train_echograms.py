@@ -13,17 +13,19 @@
 
 
 import os
-import tensorflow.compat.v1 as tf
-tf.disable_v2_behavior()
+import tensorflow as tf
 import mrcnn.model as modellib
 from mrcnn import utils
 from echogram import EchoConfig, EchoDataset
 import argparse
 from pathlib import Path
+import sys
 
 parser = argparse.ArgumentParser("Training model for MR-RCNN")
 parser.add_argument("data_dir", type=str, nargs='?', default='./data', help="The directory containing the dataset "
                                                                                "(absolute or relative path).")
+parser.add_argument("model", type=str, nargs='?', default='', help="The name of the model you wish to load. Looks in "
+                                                                   "the models folder.")
 args = parser.parse_args()
 
 MODEL_DIR = os.path.join("./logs")
@@ -32,9 +34,15 @@ MODEL_DIR = Path("./logs").resolve()
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 COCO_MODEL_DIR = Path("./models").resolve()
 COCO_MODEL_DIR.mkdir(parents=True, exist_ok=True)
-COCO_MODEL_PATH = COCO_MODEL_DIR.joinpath("mask_rcnn_coco.h5")
-if not COCO_MODEL_PATH.exists():
-    utils.download_trained_weights(COCO_MODEL_PATH)
+if len(args.model) == 0:
+    COCO_MODEL_PATH = COCO_MODEL_DIR.joinpath("mask_rcnn_coco.h5")
+    if not COCO_MODEL_PATH.exists():
+        utils.download_trained_weights(COCO_MODEL_PATH)
+else:
+    COCO_MODEL_PATH = COCO_MODEL_DIR.joinpath(args.model)
+    if not COCO_MODEL_PATH.exists():
+        raise Exception("No model file found called: {}".format(COCO_MODEL_PATH))
+
 print(tf.__version__)
 config = EchoConfig()
 config.display()
@@ -50,10 +58,9 @@ def train(model, data_dir):
     dataset_train.prepare()
 
     # Validation dataset
-    dataset_val = None
-    # dataset_val = EchoDataset()
-    # dataset_val.load_shapes(data_dir, "val")
-    # dataset_val.prepare()
+    dataset_val = EchoDataset()
+    dataset_val.load_echogram(data_dir, "val")
+    dataset_val.prepare()
 
     # *** This training schedule is an example. Update to your needs ***
     # Since we're using a very small dataset, and starting from
@@ -61,7 +68,7 @@ def train(model, data_dir):
     # no need to train all layers, just the heads should do it.
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
-                epochs=1,
+                epochs=10,
                 layers='heads')
 
 
