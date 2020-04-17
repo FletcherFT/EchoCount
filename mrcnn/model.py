@@ -1830,6 +1830,10 @@ class MaskRCNN():
         model_dir: Directory to save training logs and trained weights
         """
         assert mode in ['training', 'inference']
+        from keras.backend.tensorflow_backend import set_session
+        config_gpu = tf.ConfigProto()
+        config_gpu.gpu_options.per_process_gpu_memory_fraction = 1.0
+        set_session(tf.Session(config=config_gpu))
         self.mode = mode
         self.config = config
         self.model_dir = model_dir

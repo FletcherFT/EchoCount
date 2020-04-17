@@ -20,7 +20,7 @@ class EchoConfig(Config):
     # Train on 1 GPU and 8 images per GPU. We can put multiple images on each
     # GPU because the images are small. Batch size is 8 (GPUs * images/GPU).
     GPU_COUNT = 1  # GPU_COUNT = 1
-    IMAGES_PER_GPU = 8  # IMAGES_PER_GPU = 8
+    IMAGES_PER_GPU = 1  # IMAGES_PER_GPU = 8
 
     # Number of classes (including background)
     NUM_CLASSES = 1 + 1  # background + SingleTarget class
@@ -41,7 +41,7 @@ class EchoConfig(Config):
     STEPS_PER_EPOCH = 100
 
     # use small validation steps since the epoch is small
-    VALIDATION_STEPS = 5
+    VALIDATION_STEPS = 100
 
 
 class EchoDataset(utils.Dataset):
