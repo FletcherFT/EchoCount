@@ -136,4 +136,4 @@ dmypy.json
 /logs
 /models
 /scratch
-/test
+/raw_data
