@@ -1,6 +1,5 @@
 from mrcnn.config import Config
 from mrcnn import utils
-import os
 from skimage import io, draw
 import numpy as np
 import json
