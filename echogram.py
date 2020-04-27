@@ -21,6 +21,13 @@ class EchoConfig(Config):
     GPU_COUNT = 1  # GPU_COUNT = 1
     IMAGES_PER_GPU = 1  # IMAGES_PER_GPU = 8
 
+    # Backbone network architecture
+    # Supported values are: resnet50, resnet101.
+    # You can also provide a callable that should have the signature
+    # of model.resnet_graph. If you do so, you need to supply a callable
+    # to COMPUTE_BACKBONE_SHAPE as well
+    BACKBONE = "resnet50"
+
     # Number of classes (including background)
     NUM_CLASSES = 1 + 1  # background + SingleTarget class
 
@@ -32,15 +39,21 @@ class EchoConfig(Config):
     # Use smaller anchors because our image and objects are small
     RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)  # anchor side in pixels
 
+    # If enabled, resizes instance masks to a smaller size to reduce
+    # memory load. Recommended when using high-resolution images.
+    USE_MINI_MASK = False
+
     # Reduce training ROIs per image because the images are small and have
     # few objects. Aim to allow ROI sampling to pick 33% positive ROIs.
     TRAIN_ROIS_PER_IMAGE = 200
 
+    ROI_POSITIVE_RATIO = 0.33
+
     # Use a small epoch since the data is simple
-    STEPS_PER_EPOCH = 100
+    STEPS_PER_EPOCH = 68
 
     # use small validation steps since the epoch is small
-    VALIDATION_STEPS = 100
+    VALIDATION_STEPS = 14
 
 
 class EchoDataset(utils.Dataset):
@@ -61,8 +74,19 @@ class EchoDataset(utils.Dataset):
         polyline["shape_attributes"]["name"] = "polygon"
         return polyline
 
+    def _unpack_via2_json_annotation(self, jpath, thickness=3):
+        agg_annotations = []
+        for jfile in jpath:
+            with open(jfile) as f:
+                annotations = json.load(f)
+                for annotation in annotations.values():
+                    for i, region in enumerate(annotation["regions"]):
+                        if region["shape_attributes"]["name"] == "polyline":
+                            annotation["regions"][i] = self._polyline_to_polygon(region)
+                    agg_annotations.append(annotation)
+        return agg_annotations
 
-    def _unpack_via2_json(self, jpath, thickness=3):
+    def _unpack_via2_json_project(self, jpath, thickness=3):
         agg_annotations = []
         for jfile in jpath:
             with open(jfile) as f:
@@ -82,10 +106,18 @@ class EchoDataset(utils.Dataset):
         assert subset in ["train", "val"]
         # Add classes
         self.add_class("echogram", 1, "singletarget")
-        dataset_path = Path(dataset_dir, subset).resolve()
+        #dataset_path = Path(dataset_dir, subset).resolve()
+        dataset_path = Path(dataset_dir).resolve()
         image_names = list(dataset_path.glob("*.png"))
-        json_files = list(dataset_path.glob("*.json"))
-        annotations = self._unpack_via2_json(json_files)
+        #json_files = list(dataset_path.glob("*.json"))
+        #annotations = self._unpack_via2_json_project(json_files)
+        if subset == "train":
+            json_files = list(dataset_path.glob("train.json"))
+        elif subset == "val":
+            json_files = list(dataset_path.glob("valid.json"))
+        else:
+            raise LookupError("No subset called {}".format(subset))
+        annotations = self._unpack_via2_json_annotation(json_files)
 
         # Add images
         for a in annotations:
@@ -101,7 +133,8 @@ class EchoDataset(utils.Dataset):
             # load_mask() needs the image size to convert polygons to masks.
             # Unfortunately, VIA doesn't include it in JSON, so we must read
             # the image. This is only managable since the dataset is tiny.
-            image_path = Path(dataset_dir, subset, a['filename']).resolve()
+            #image_path = Path(dataset_dir, subset, a['filename']).resolve()
+            image_path = Path(dataset_dir, a['filename']).resolve()
             width, height = imagesize.get(image_path)
 
             self.add_image(
