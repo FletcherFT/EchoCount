@@ -33,12 +33,12 @@ class EchoConfig(Config):
 
     # Use small images for faster training. Set the limits of the small side
     # the large side, and that determines the image shape.
-    IMAGE_RESIZE_MODE = "square"
-    IMAGE_MIN_DIM = 448
-    IMAGE_MAX_DIM = 448
+    IMAGE_RESIZE_MODE = "crop"
+    IMAGE_MIN_DIM = 256
+    IMAGE_MAX_DIM = 256
 
     # Use smaller anchors because our image and objects are small
-    RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)  # anchor side in pixels
+    RPN_ANCHOR_SCALES = (4, 8, 16, 32, 64)  # anchor side in pixels
 
     # If enabled, resizes instance masks to a smaller size to reduce
     # memory load. Recommended when using high-resolution images.
@@ -52,10 +52,10 @@ class EchoConfig(Config):
     ROI_POSITIVE_RATIO = 0.5
 
     # Use a small epoch since the data is simple
-    STEPS_PER_EPOCH = 34
+    STEPS_PER_EPOCH = 100
 
     # use small validation steps since the epoch is small
-    VALIDATION_STEPS = 7
+    VALIDATION_STEPS = 25
 
     # Maximum number of ground truth instances to use in one image
     MAX_GT_INSTANCES = 250

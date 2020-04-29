@@ -27,9 +27,13 @@ parser.add_argument("data_dir", type=str, nargs='?', default='./data', help="The
 parser.add_argument("model", type=str, nargs='?', default='', help="The name of the model you wish to load. Looks in "
                                                                    "the models folder.")
 parser.add_argument("-e", type=int, nargs='?', default=1, help="Number of epochs to run. (default 1)")
+parser.add_argument("-l", type=str, nargs='?', default="all", help="Set trainable layers, can be one of the following:"
+                                                                   "all, heads, mask, rpn fpn, 3+, 4+, 5+. Default is"
+                                                                   "all.")
 args = parser.parse_args()
 
 EPOCHS = args.e
+LAYERS = args.l
 
 MODEL_DIR = os.path.join("./logs")
 MODEL_DIR = Path("./logs").resolve()
@@ -51,7 +55,7 @@ config = EchoConfig()
 config.display()
 
 
-def train(model, data_dir, epochs=1):
+def train(model, data_dir, epochs=1, layers="all"):
     """Train the model."""
 
     data_dir = os.path.abspath(data_dir)
@@ -97,4 +101,4 @@ elif init_with == "last":
     # Load the last model you trained and continue training
     model.load_weights(model.find_last(), by_name=True)
 
-train(model, args.data_dir, EPOCHS)
+train(model, args.data_dir, EPOCHS, LAYERS)
