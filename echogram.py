@@ -19,14 +19,14 @@ class EchoConfig(Config):
     # Train on 1 GPU and 8 images per GPU. We can put multiple images on each
     # GPU because the images are small. Batch size is 8 (GPUs * images/GPU).
     GPU_COUNT = 1  # GPU_COUNT = 1
-    IMAGES_PER_GPU = 4  # IMAGES_PER_GPU = 8
+    IMAGES_PER_GPU = 2  # IMAGES_PER_GPU = 8
 
     # Backbone network architecture
     # Supported values are: resnet50, resnet101.
     # You can also provide a callable that should have the signature
     # of model.resnet_graph. If you do so, you need to supply a callable
     # to COMPUTE_BACKBONE_SHAPE as well
-    BACKBONE = "resnet50"
+    BACKBONE = "resnet101"
 
     # Number of classes (including background)
     NUM_CLASSES = 1 + 1  # background + SingleTarget class
@@ -34,8 +34,8 @@ class EchoConfig(Config):
     # Use small images for faster training. Set the limits of the small side
     # the large side, and that determines the image shape.
     IMAGE_RESIZE_MODE = "crop"
-    IMAGE_MIN_DIM = 256
-    IMAGE_MAX_DIM = 256
+    IMAGE_MIN_DIM = 435
+    IMAGE_MAX_DIM = 435
 
     # Use smaller anchors because our image and objects are small
     RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)  # anchor side in pixels
@@ -49,13 +49,13 @@ class EchoConfig(Config):
     # few objects. Aim to allow ROI sampling to pick 33% positive ROIs.
     TRAIN_ROIS_PER_IMAGE = 512
 
-    ROI_POSITIVE_RATIO = 0.33
+    ROI_POSITIVE_RATIO = 0.5
 
     # Use a small epoch since the data is simple
-    STEPS_PER_EPOCH = 100
+    STEPS_PER_EPOCH = 34
 
     # use small validation steps since the epoch is small
-    VALIDATION_STEPS = 24
+    VALIDATION_STEPS = 7
 
     # Maximum number of ground truth instances to use in one image
     MAX_GT_INSTANCES = 250
@@ -71,10 +71,10 @@ class EchoConfig(Config):
     # Can be used for R-CNN training setup.
     LOSS_WEIGHTS = {
         "rpn_class_loss": 1.,
-        "rpn_bbox_loss": 2.,
-        "mrcnn_class_loss": 2.,
-        "mrcnn_bbox_loss": 2.,
-        "mrcnn_mask_loss": 2.
+        "rpn_bbox_loss": 1.,
+        "mrcnn_class_loss": 1.,
+        "mrcnn_bbox_loss": 1.,
+        "mrcnn_mask_loss": 1.
     }
 
 
