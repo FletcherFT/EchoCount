@@ -1,6 +1,6 @@
 from mrcnn.config import Config
 from mrcnn import utils
-from skimage import io, draw
+from skimage import io, draw, color
 import numpy as np
 import json
 from pathlib import Path
@@ -33,27 +33,39 @@ class EchoConfig(Config):
 
     # Use small images for faster training. Set the limits of the small side
     # the large side, and that determines the image shape.
-    IMAGE_MIN_DIM = 448
-    IMAGE_MAX_DIM = 448
+    IMAGE_RESIZE_MODE = "crop"
+    IMAGE_MIN_DIM = 256
+    IMAGE_MAX_DIM = 256
 
     # Use smaller anchors because our image and objects are small
     RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)  # anchor side in pixels
 
     # If enabled, resizes instance masks to a smaller size to reduce
     # memory load. Recommended when using high-resolution images.
-    USE_MINI_MASK = False
+    USE_MINI_MASK = True
+    MINI_MASK_SHAPE = (128, 128)  # (height, width) of the mini-mask
 
     # Reduce training ROIs per image because the images are small and have
     # few objects. Aim to allow ROI sampling to pick 33% positive ROIs.
-    TRAIN_ROIS_PER_IMAGE = 200
+    TRAIN_ROIS_PER_IMAGE = 300
 
-    ROI_POSITIVE_RATIO = 0.33
+    ROI_POSITIVE_RATIO = 0.5
 
     # Use a small epoch since the data is simple
     STEPS_PER_EPOCH = 68
 
     # use small validation steps since the epoch is small
     VALIDATION_STEPS = 14
+
+    # Maximum number of ground truth instances to use in one image
+    MAX_GT_INSTANCES = 250
+
+    # Max number of final detections
+    DETECTION_MAX_INSTANCES = 250
+
+    # Minimum probability value to accept a detected instance
+    # ROIs below this threshold are skipped
+    DETECTION_MIN_CONFIDENCE = 0.9
 
 
 class EchoDataset(utils.Dataset):
@@ -183,3 +195,16 @@ class EchoDataset(utils.Dataset):
         # Return mask, and array of class IDs of each instance. Since we have
         # one class ID only, we return an array of 1s
         return mask.astype(np.bool), np.ones([mask.shape[-1]], dtype=np.int32)
+
+    def load_image(self, image_id):
+        """Load the specified image and return a [H,W,3] Numpy array.
+                """
+        # Load image
+        image = io.imread(self.image_info[image_id]['path'])
+        # If grayscale. Convert to RGB for consistency.
+        if image.ndim != 3:
+            image = color.gray2rgb(image)
+        # If has an alpha channel, remove it for consistency
+        if image.shape[-1] == 4:
+            image = image[..., :3]
+        return image

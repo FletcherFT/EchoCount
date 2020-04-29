@@ -19,7 +19,7 @@ from mrcnn import utils
 from echogram import EchoConfig, EchoDataset
 import argparse
 from pathlib import Path
-import sys
+import imgaug
 
 parser = argparse.ArgumentParser("Training model for MR-RCNN")
 parser.add_argument("data_dir", type=str, nargs='?', default='./data', help="The directory containing the dataset "
@@ -68,8 +68,9 @@ def train(model, data_dir):
     # no need to train all layers, just the heads should do it.
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
-                epochs=100,
-                layers='all')
+                epochs=1000,
+                layers='all',
+                augmentation=imgaug.augmenters.Fliplr(0.5))
 
 
 # Create Model
