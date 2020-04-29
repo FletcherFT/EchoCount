@@ -26,7 +26,10 @@ parser.add_argument("data_dir", type=str, nargs='?', default='./data', help="The
                                                                                "(absolute or relative path).")
 parser.add_argument("model", type=str, nargs='?', default='', help="The name of the model you wish to load. Looks in "
                                                                    "the models folder.")
+parser.add_argument("-e", type=int, nargs='?', default=1, help="Number of epochs to run. (default 1)")
 args = parser.parse_args()
+
+EPOCHS = args.e
 
 MODEL_DIR = os.path.join("./logs")
 MODEL_DIR = Path("./logs").resolve()
@@ -48,7 +51,7 @@ config = EchoConfig()
 config.display()
 
 
-def train(model, data_dir):
+def train(model, data_dir, epochs=1):
     """Train the model."""
 
     data_dir = os.path.abspath(data_dir)
@@ -68,7 +71,7 @@ def train(model, data_dir):
     # no need to train all layers, just the heads should do it.
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
-                epochs=1000,
+                epochs=epochs,
                 layers='all',
                 augmentation=imgaug.augmenters.Fliplr(0.5))
 
@@ -94,4 +97,4 @@ elif init_with == "last":
     # Load the last model you trained and continue training
     model.load_weights(model.find_last(), by_name=True)
 
-train(model, args.data_dir)
+train(model, args.data_dir, EPOCHS)

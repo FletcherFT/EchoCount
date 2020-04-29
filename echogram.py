@@ -19,7 +19,7 @@ class EchoConfig(Config):
     # Train on 1 GPU and 8 images per GPU. We can put multiple images on each
     # GPU because the images are small. Batch size is 8 (GPUs * images/GPU).
     GPU_COUNT = 1  # GPU_COUNT = 1
-    IMAGES_PER_GPU = 2  # IMAGES_PER_GPU = 8
+    IMAGES_PER_GPU = 4  # IMAGES_PER_GPU = 8
 
     # Backbone network architecture
     # Supported values are: resnet50, resnet101.
@@ -47,9 +47,9 @@ class EchoConfig(Config):
 
     # Reduce training ROIs per image because the images are small and have
     # few objects. Aim to allow ROI sampling to pick 33% positive ROIs.
-    TRAIN_ROIS_PER_IMAGE = 300
+    TRAIN_ROIS_PER_IMAGE = 512
 
-    ROI_POSITIVE_RATIO = 0.5
+    ROI_POSITIVE_RATIO = 0.33
 
     # Use a small epoch since the data is simple
     STEPS_PER_EPOCH = 100
