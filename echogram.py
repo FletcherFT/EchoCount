@@ -67,6 +67,16 @@ class EchoConfig(Config):
     # ROIs below this threshold are skipped
     DETECTION_MIN_CONFIDENCE = 0.9
 
+    # Loss weights for more precise optimization.
+    # Can be used for R-CNN training setup.
+    LOSS_WEIGHTS = {
+        "rpn_class_loss": 1.,
+        "rpn_bbox_loss": 2.,
+        "mrcnn_class_loss": 2.,
+        "mrcnn_bbox_loss": 2.,
+        "mrcnn_mask_loss": 2.
+    }
+
 
 class EchoDataset(utils.Dataset):
     """Generates the echogram dataset. The dataset consists of echograms containing cod instances.
