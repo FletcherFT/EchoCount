@@ -76,7 +76,7 @@ def train(model, data_dir, epochs=1, layers="all"):
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE,
                 epochs=epochs,
-                layers='all',
+                layers=layers,
                 augmentation=imgaug.augmenters.Fliplr(0.5))
 
 
