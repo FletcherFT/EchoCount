@@ -137,3 +137,5 @@ dmypy.json
 /models
 /scratch
 /raw_data
+/output
+/exportTensorFlowLog
