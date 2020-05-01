@@ -19,7 +19,7 @@ class EchoConfig(Config):
     # Train on 1 GPU and 8 images per GPU. We can put multiple images on each
     # GPU because the images are small. Batch size is 8 (GPUs * images/GPU).
     GPU_COUNT = 1  # GPU_COUNT = 1
-    IMAGES_PER_GPU = 3  # IMAGES_PER_GPU = 8
+    IMAGES_PER_GPU = 2  # IMAGES_PER_GPU = 8
 
     # Backbone network architecture
     # Supported values are: resnet50, resnet101.
@@ -128,11 +128,7 @@ class EchoDataset(utils.Dataset):
         assert subset in ["train", "val"]
         # Add classes
         self.add_class("echogram", 1, "singletarget")
-        #dataset_path = Path(dataset_dir, subset).resolve()
         dataset_path = Path(dataset_dir).resolve()
-        image_names = list(dataset_path.glob("*.png"))
-        #json_files = list(dataset_path.glob("*.json"))
-        #annotations = self._unpack_via2_json_project(json_files)
         if subset == "train":
             json_files = list(dataset_path.glob("train.json"))
         elif subset == "val":
@@ -155,7 +151,6 @@ class EchoDataset(utils.Dataset):
             # load_mask() needs the image size to convert polygons to masks.
             # Unfortunately, VIA doesn't include it in JSON, so we must read
             # the image. This is only managable since the dataset is tiny.
-            #image_path = Path(dataset_dir, subset, a['filename']).resolve()
             image_path = Path(dataset_dir, a['filename']).resolve()
             width, height = imagesize.get(image_path)
 
