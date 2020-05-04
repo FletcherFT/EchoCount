@@ -47,7 +47,7 @@ class EchoConfig(Config):
 
     # Reduce training ROIs per image because the images are small and have
     # few objects. Aim to allow ROI sampling to pick 33% positive ROIs.
-    TRAIN_ROIS_PER_IMAGE = 512
+    TRAIN_ROIS_PER_IMAGE = 200
 
     ROI_POSITIVE_RATIO = 0.5
 
@@ -125,16 +125,11 @@ class EchoDataset(utils.Dataset):
         dataset_dir: Root directory of the dataset.
         subset: Subset to load: train or val
         """
-        assert subset in ["train", "val"]
+        assert subset in ["train", "valid", "tests"], "No subset called {}".format(subset)
         # Add classes
         self.add_class("echogram", 1, "singletarget")
         dataset_path = Path(dataset_dir).resolve()
-        if subset == "train":
-            json_files = list(dataset_path.glob("train.json"))
-        elif subset == "val":
-            json_files = list(dataset_path.glob("valid.json"))
-        else:
-            raise LookupError("No subset called {}".format(subset))
+        json_files = list(dataset_path.glob("{}.json".format(subset)))
         annotations = self._unpack_via2_json_annotation(json_files)
 
         # Add images
@@ -192,9 +187,7 @@ class EchoDataset(utils.Dataset):
                         dtype=np.uint8)
         for i, p in enumerate(info["polygons"]):
             # Get indexes of pixels inside the polygon and set them to 1
-            rr, cc = draw.polygon(p['all_points_y'], p['all_points_x'])
-            rr[rr >= info["height"]] = info["height"] - 1
-            cc[cc >= info["width"]] = info["width"] - 1
+            rr, cc = draw.polygon(p['all_points_y'], p['all_points_x'], shape=mask.shape[:2])
             mask[rr, cc, i] = 1
 
         # Return mask, and array of class IDs of each instance. Since we have

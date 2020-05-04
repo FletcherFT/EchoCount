@@ -35,7 +35,6 @@ args = parser.parse_args()
 EPOCHS = args.e
 LAYERS = args.l
 
-MODEL_DIR = os.path.join("./logs")
 MODEL_DIR = Path("./logs").resolve()
 
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
@@ -66,7 +65,7 @@ def train(model, data_dir, epochs=1, layers="all"):
 
     # Validation dataset
     dataset_val = EchoDataset()
-    dataset_val.load_echogram(data_dir, "val")
+    dataset_val.load_echogram(data_dir, "valid")
     dataset_val.prepare()
 
     # *** This training schedule is an example. Update to your needs ***
