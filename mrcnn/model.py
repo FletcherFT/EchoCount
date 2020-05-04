@@ -2389,6 +2389,39 @@ class MaskRCNN():
         )
         self.epoch = max(self.epoch, epochs)
 
+    def evaluate(self, test_dataset, steps=1, augmentation=None, no_augmentation_sources=None):
+        """Evaluate the model.
+        test_dataset: Test Dataset object.
+        """
+        assert self.mode == "training", "Create model in training mode."
+
+        # Data generators
+        test_generator = data_generator(test_dataset, self.config, shuffle=True,
+                                         augmentation=augmentation,
+                                         batch_size=self.config.BATCH_SIZE,
+                                         no_augmentation_sources=no_augmentation_sources)
+
+        # Callbacks
+        callbacks = None
+
+        # Test
+        self.compile(0.0001, self.config.LEARNING_MOMENTUM)
+
+        # Work-around for Windows: Keras fails on Windows when using
+        # multiprocessing workers. See discussion here:
+        # https://github.com/matterport/Mask_RCNN/issues/13#issuecomment-353124009
+        if os.name is 'nt':
+            workers = 1
+        else:
+            workers = multiprocessing.cpu_count()
+        return self.keras_model.evaluate_generator(
+                                                    test_generator,
+                                                    steps=steps,
+                                                    max_queue_size=100,
+                                                    workers=workers,
+                                                    use_multiprocessing=False,
+                                                    )
+
     def mold_inputs(self, images):
         """Takes a list of images and modifies them to the format expected
         as an input to the neural network.
