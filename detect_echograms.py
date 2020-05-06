@@ -105,7 +105,7 @@ if __name__ == "__main__":
     dataset = EchoDataset()
     dataset.load_echogram(data_dir, args.subset)
     dataset.prepare()
-    inspect(dataset, args.window_size)
+    inputs, annotated, masks = inspect(dataset, args.window_size)
     # Load model
     COCO_MODEL_DIR = Path("./models").resolve()
     COCO_MODEL_DIR.mkdir(parents=True, exist_ok=True)
@@ -122,14 +122,15 @@ if __name__ == "__main__":
     # Modify config for inference
     config.GPU_COUNT = 1
     config.IMAGES_PER_GPU = 1
-    config.DETECTION_MIN_CONFIDENCE = 0.7
+    config.DETECTION_MIN_CONFIDENCE = 0.9
     # Because the image data is preprocessed, set the resizing mode to None
     config.IMAGE_RESIZE_MODE = "none"
     model = modellib.MaskRCNN(mode="inference", config=config,
                               model_dir=COCO_MODEL_DIR)
     model.load_weights(str(COCO_MODEL_PATH), by_name=True)
     # Make detections
-    results, inputs, annotated, masks = load_and_detect(dataset, args.window_size, model)
+    results = detect(model, inputs)
+    # results, inputs, annotated, masks = load_and_detect(dataset, args.window_size, model)
     results_collection = []
     for i, result in enumerate(results):
         mask = mask2poly(result["masks"])
@@ -140,3 +141,8 @@ if __name__ == "__main__":
         results_collection.append(np.hstack((ref,
                                              np.array([0, 255, 0])*np.ones((ref.shape[0], 10, 3), dtype=np.int8), img)))
     display(results_collection)
+    output_dir = Path("detection_results").resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for i, result in enumerate(results_collection):
+        loc = output_dir.joinpath("test_{:04d}_{}conf.png".format(i, config.DETECTION_MIN_CONFIDENCE))
+        io.imsave(loc, result)

@@ -139,3 +139,4 @@ dmypy.json
 /raw_data
 /output
 /exportTensorFlowLog
+/detection_results

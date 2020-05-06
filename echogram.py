@@ -34,11 +34,19 @@ class EchoConfig(Config):
     # Use small images for faster training. Set the limits of the small side
     # the large side, and that determines the image shape.
     IMAGE_RESIZE_MODE = "crop"
-    IMAGE_MIN_DIM = 128
-    IMAGE_MAX_DIM = 128
+    IMAGE_MIN_DIM = 256
+    IMAGE_MAX_DIM = 256
+
+    # Number of color channels per image. RGB = 3, grayscale = 1, RGB-D = 4
+    # Changing this requires other changes in the code. See the WIKI for more
+    # details: https://github.com/matterport/Mask_RCNN/wiki
+    IMAGE_CHANNEL_COUNT = 1
+
+    # Image mean (RGB)
+    MEAN_PIXEL = np.array([128])
 
     # Use smaller anchors because our image and objects are small
-    RPN_ANCHOR_SCALES = (8, 16, 32, 64, 128)  # anchor side in pixels
+    RPN_ANCHOR_SCALES = (16, 32, 64, 128)  # anchor side in pixels
 
     # If enabled, resizes instance masks to a smaller size to reduce
     # memory load. Recommended when using high-resolution images.
@@ -52,10 +60,10 @@ class EchoConfig(Config):
     ROI_POSITIVE_RATIO = 0.5
 
     # Use a small epoch since the data is simple
-    STEPS_PER_EPOCH = 100
+    STEPS_PER_EPOCH = 1000
 
     # use small validation steps since the epoch is small
-    VALIDATION_STEPS = 25
+    VALIDATION_STEPS = 250
 
     # Maximum number of ground truth instances to use in one image
     MAX_GT_INSTANCES = 250
@@ -199,10 +207,10 @@ class EchoDataset(utils.Dataset):
                 """
         # Load image
         image = io.imread(self.image_info[image_id]['path'])
-        # If grayscale. Convert to RGB for consistency.
-        if image.ndim != 3:
-            image = color.gray2rgb(image)
         # If has an alpha channel, remove it for consistency
-        if image.shape[-1] == 4:
+        if image.ndim > 3:
             image = image[..., :3]
+        if image.ndim > 2:
+            image = color.rgb2gray(image)
+            image = np.expand_dims(image, axis=-1)
         return image
