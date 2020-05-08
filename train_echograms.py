@@ -55,7 +55,8 @@ if __name__ == "__main__":
                         help="The name of the model you wish to load. Looks in the models folder.")
     parser.add_argument("-e", "--epochs", type=int, nargs='?', default=1, help="Number of epochs to run.")
     parser.add_argument("-l", "--layers", type=str, nargs='?', default="all", choices=["all", "heads", "mask", "rpn",
-                                                                                       "fpn", "3+", "4+", "5+"],
+                                                                                       "fpn", "3+", "4+", "5+",
+                                                                                       "bbn+fpn+rpn"],
                         help="Set trainable layers.")
     parser.add_argument("-i", "--init_with", type=str, nargs="?", default="coco", choices=["imagenet", "coco", "last"],
                         help="Indicate if the model should be initialized with the original coco weights or if the "
