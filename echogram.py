@@ -46,7 +46,7 @@ class EchoConfig(Config):
     MEAN_PIXEL = np.array([128])
 
     # Use smaller anchors because our image and objects are small
-    RPN_ANCHOR_SCALES = (4, 8, 16, 32)  # anchor side in pixels
+    RPN_ANCHOR_SCALES = (8, 16, 24, 32, 48, 64, 128)  # anchor side in pixels
 
     # If enabled, resizes instance masks to a smaller size to reduce
     # memory load. Recommended when using high-resolution images.
@@ -55,7 +55,7 @@ class EchoConfig(Config):
 
     # Reduce training ROIs per image because the images are small and have
     # few objects. Aim to allow ROI sampling to pick 33% positive ROIs.
-    TRAIN_ROIS_PER_IMAGE = 512
+    TRAIN_ROIS_PER_IMAGE = 300
 
     ROI_POSITIVE_RATIO = 0.33
 
@@ -66,10 +66,10 @@ class EchoConfig(Config):
     VALIDATION_STEPS = 256
 
     # Maximum number of ground truth instances to use in one image
-    MAX_GT_INSTANCES = 256
+    MAX_GT_INSTANCES = 100
 
     # Max number of final detections
-    DETECTION_MAX_INSTANCES = 256
+    DETECTION_MAX_INSTANCES = 100
 
     # Minimum probability value to accept a detected instance
     # ROIs below this threshold are skipped
@@ -80,9 +80,9 @@ class EchoConfig(Config):
     LOSS_WEIGHTS = {
         "rpn_class_loss": 1.,
         "rpn_bbox_loss": 1.,
-        "mrcnn_class_loss": 1.,
-        "mrcnn_bbox_loss": 1.,
-        "mrcnn_mask_loss": 1.
+        "mrcnn_class_loss": 0.,
+        "mrcnn_bbox_loss": 0.,
+        "mrcnn_mask_loss": 0.
     }
 
     TRAIN_BN = True
