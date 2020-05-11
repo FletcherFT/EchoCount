@@ -19,7 +19,7 @@ class EchoConfig(Config):
     # Train on 1 GPU and 8 images per GPU. We can put multiple images on each
     # GPU because the images are small. Batch size is 8 (GPUs * images/GPU).
     GPU_COUNT = 1  # GPU_COUNT = 1
-    IMAGES_PER_GPU = 1  # IMAGES_PER_GPU = 8
+    IMAGES_PER_GPU = 4  # IMAGES_PER_GPU = 8
 
     # Backbone network architecture
     # Supported values are: resnet50, resnet101.
@@ -60,10 +60,10 @@ class EchoConfig(Config):
     ROI_POSITIVE_RATIO = 0.33
 
     # Use a small epoch since the data is simple
-    STEPS_PER_EPOCH = 1024
+    STEPS_PER_EPOCH = 256
 
     # use small validation steps since the epoch is small
-    VALIDATION_STEPS = 256
+    VALIDATION_STEPS = 64
 
     # Maximum number of ground truth instances to use in one image
     MAX_GT_INSTANCES = 100
@@ -85,7 +85,7 @@ class EchoConfig(Config):
         "mrcnn_mask_loss": 1.
     }
 
-    TRAIN_BN = False
+    TRAIN_BN = True
 
 
 class EchoDataset(utils.Dataset):
